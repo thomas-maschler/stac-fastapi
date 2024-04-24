@@ -1,7 +1,7 @@
 """Fastapi app creation."""
 
 
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Annotated, Any, Dict, List, Optional, Tuple, Type, TypeVar, Union
 
 import attr
 from brotli_asgi import BrotliMiddleware
@@ -13,6 +13,7 @@ from stac_pydantic.api.collections import Collections
 from stac_pydantic.api.version import STAC_API_VERSION
 from stac_pydantic.shared import MimeTypes
 from starlette.responses import JSONResponse, Response
+from starlette.types import Lifespan
 
 from stac_fastapi.api.errors import DEFAULT_STATUS_CODES, add_exception_handlers
 from stac_fastapi.api.middleware import CORSMiddleware, ProxyHeaderMiddleware
@@ -33,6 +34,8 @@ from stac_fastapi.types.config import ApiSettings, Settings
 from stac_fastapi.types.core import AsyncBaseCoreClient, BaseCoreClient
 from stac_fastapi.types.extension import ApiExtension
 from stac_fastapi.types.search import BaseSearchGetRequest, BaseSearchPostRequest
+
+AppType = TypeVar("AppType", bound="FastAPI")
 
 
 @attr.s
@@ -73,12 +76,14 @@ class StacApi:
     exceptions: Dict[Type[Exception], int] = attr.ib(
         default=attr.Factory(lambda: DEFAULT_STATUS_CODES)
     )
+    lifespan: Annotated[Optional[Lifespan[AppType]], None] = attr.ib(default=None)
     app: FastAPI = attr.ib(
         default=attr.Factory(
             lambda self: FastAPI(
                 openapi_url=self.settings.openapi_url,
                 docs_url=self.settings.docs_url,
                 redoc_url=None,
+                lifespan=self.lifespan,
             ),
             takes_self=True,
         ),
