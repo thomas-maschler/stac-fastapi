@@ -13,6 +13,8 @@ RFC33339_PATTERN = (
     r"(Z|([-+])(\d\d):(\d\d))$"
 )
 
+RFC33339_PATTERN_SHORT = r"^(\d\d\d\d)\-(\d\d)\-(\d\d)"
+
 DateTimeType = Union[
     datetime,
     Tuple[datetime, datetime],
@@ -39,8 +41,9 @@ def rfc3339_str_to_datetime(s: str) -> datetime:
     s = s.upper()
 
     # Match against RFC3339 regex.
-    result = re.match(RFC33339_PATTERN, s)
-    if not result:
+    result = re.match(RFC33339_PATTERN, s) or re.match(RFC33339_PATTERN_SHORT, s)
+
+    if not result or not result.group(0) == s:
         raise ValueError("Invalid RFC3339 datetime.")
 
     # Parse with pyiso8601

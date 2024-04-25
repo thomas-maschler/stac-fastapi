@@ -11,7 +11,7 @@ from stac_fastapi.types.rfc3339 import (
 )
 
 invalid_datetimes = [
-    "1985-04-12",  # date only
+    # "1985-04-12",  # date only
     "1937-01-01T12:00:27.87+0100",  # invalid TZ format, no sep :
     "37-01-01T12:00:27.87Z",  # invalid year, must be 4 digits
     "1985-12-12T23:20:50.52",  # no TZ
